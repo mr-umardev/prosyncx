@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -22,164 +22,65 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import {
-  Users,
-  MessageSquare,
-  Video,
-  Calendar,
-  Plus,
-  Search,
-  Filter,
-  FileText,
-  Folder,
-  Download,
-  Upload,
-  CheckCircle,
-  Circle,
-  AlertCircle,
-  Home,
-  Settings,
-  Bell,
-} from "lucide-react"
+import { Users, MessageSquare, Calendar, Plus, Search, Filter, Upload, Home, Settings, Bell } from "lucide-react"
 import { GitHubIntegration } from "@/components/github-integration"
 
 export default function WorkspacePage() {
   const [activeTab, setActiveTab] = useState("projects")
-  const [selectedProject, setSelectedProject] = useState("mobile-app")
+  const [selectedProject, setSelectedProject] = useState("")
   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [projects, setProjects] = useState<any[]>([])
   const [newProject, setNewProject] = useState({
     name: "",
     teamName: "",
     coordinator: "",
     description: "",
     progress: 0,
+    githubRepo: "",
   })
 
   const router = useRouter()
 
-  const projects = [
-    {
-      id: "mobile-app",
-      name: "Mobile App Redesign",
-      description: "Complete redesign of the mobile application with new UI/UX",
-      progress: 75,
-      team: 5,
-      deadline: "Dec 15, 2024",
-      status: "on-track",
-      tasks: 24,
-      completedTasks: 18,
-      teamName: "Design Squad",
-      coordinator: "Sarah Chen",
-      image: "/mobile-app-design-mockup.jpg",
-    },
-    {
-      id: "website-migration",
-      name: "Website Migration",
-      description: "Migrate existing website to new hosting platform",
-      progress: 45,
-      team: 3,
-      deadline: "Jan 10, 2025",
-      status: "at-risk",
-      tasks: 16,
-      completedTasks: 7,
-      teamName: "DevOps Team",
-      coordinator: "Mike Johnson",
-      image: "/website-migration-dashboard.jpg",
-    },
-    {
-      id: "ai-integration",
-      name: "AI Integration",
-      description: "Integrate AI capabilities into existing platform",
-      progress: 90,
-      team: 7,
-      deadline: "Nov 30, 2024",
-      status: "ahead",
-      tasks: 20,
-      completedTasks: 18,
-      teamName: "AI Innovation Lab",
-      coordinator: "Dr. Emily Davis",
-      image: "/ai-integration-interface.jpg",
-    },
-  ]
+  useEffect(() => {
+    fetchProjects()
+  }, [])
 
-  const tasks = [
-    {
-      id: 1,
-      title: "Design user authentication flow",
-      description: "Create wireframes and mockups for the login/signup process",
-      assignee: "Sarah Chen",
-      priority: "high",
-      status: "completed",
-      dueDate: "Nov 20, 2024",
-    },
-    {
-      id: 2,
-      title: "Implement API endpoints",
-      description: "Build REST API endpoints for user management",
-      assignee: "Mike Johnson",
-      priority: "high",
-      status: "in-progress",
-      dueDate: "Nov 25, 2024",
-    },
-    {
-      id: 3,
-      title: "Create responsive layouts",
-      description: "Ensure all pages work properly on mobile devices",
-      assignee: "Emily Davis",
-      priority: "medium",
-      status: "todo",
-      dueDate: "Dec 1, 2024",
-    },
-    {
-      id: 4,
-      title: "Write unit tests",
-      description: "Add comprehensive test coverage for new features",
-      assignee: "Alex Rodriguez",
-      priority: "medium",
-      status: "todo",
-      dueDate: "Dec 5, 2024",
-    },
-  ]
+  const fetchProjects = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch("/api/projects")
+      if (!response.ok) throw new Error("Failed to fetch projects")
+      const data = await response.json()
+      setProjects(data)
+      if (data.length > 0 && !selectedProject) {
+        setSelectedProject(data[0].id)
+      }
+    } catch (error) {
+      console.error("[v0] Error fetching projects:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-  const files = [
-    {
-      id: 1,
-      name: "Project Requirements.pdf",
-      type: "document",
-      size: "2.4 MB",
-      modified: "2 hours ago",
-      author: "Sarah Chen",
-    },
-    {
-      id: 2,
-      name: "UI Mockups",
-      type: "folder",
-      size: "15 files",
-      modified: "1 day ago",
-      author: "Design Team",
-    },
-    {
-      id: 3,
-      name: "API Documentation.md",
-      type: "document",
-      size: "156 KB",
-      modified: "3 days ago",
-      author: "Mike Johnson",
-    },
-    {
-      id: 4,
-      name: "Test Results.xlsx",
-      type: "spreadsheet",
-      size: "890 KB",
-      modified: "1 week ago",
-      author: "QA Team",
-    },
-  ]
+  const handleCreateProject = async () => {
+    if (!newProject.name || !newProject.teamName || !newProject.coordinator) {
+      alert("Please fill in all required fields (Project Name, Team Name, and Coordinator)")
+      return
+    }
 
-  const handleCreateProject = () => {
-    if (newProject.name && newProject.teamName && newProject.coordinator) {
-      console.log("Creating new project:", newProject)
-      alert("Project created successfully!")
+    try {
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newProject),
+      })
+
+      if (!response.ok) throw new Error("Failed to create project")
+
+      const createdProject = await response.json()
+      setProjects([createdProject, ...projects])
+      setSelectedProject(createdProject.id)
       setIsNewProjectOpen(false)
       setNewProject({
         name: "",
@@ -187,9 +88,12 @@ export default function WorkspacePage() {
         coordinator: "",
         description: "",
         progress: 0,
+        githubRepo: "",
       })
-    } else {
-      alert("Please fill in all required fields (Project Name, Team Name, and Coordinator)")
+      alert("Project created successfully!")
+    } catch (error) {
+      console.error("[v0] Error creating project:", error)
+      alert("Failed to create project")
     }
   }
 
@@ -199,6 +103,17 @@ export default function WorkspacePage() {
 
   const currentProject = projects.find((p) => p.id === selectedProject) || projects[0]
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading projects...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Header */}
@@ -206,9 +121,7 @@ export default function WorkspacePage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">P</span>
-              </div>
+              <img src="/p4-9JeppgAJ06W7YNmAPTQVLiIUwTachA.png" alt="ProSyncX" className="h-10 w-10" />
               <span className="text-xl font-bold">ProSyncX</span>
             </Link>
             <div className="hidden md:flex items-center space-x-1">
@@ -264,18 +177,20 @@ export default function WorkspacePage() {
           <div className="flex items-center gap-4">
             <GitHubIntegration />
 
-            <Select value={selectedProject} onValueChange={setSelectedProject}>
-              <SelectTrigger className="w-64">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {projects.length > 0 && (
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <SelectTrigger className="w-64">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <Dialog open={isNewProjectOpen} onOpenChange={setIsNewProjectOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
@@ -339,6 +254,15 @@ export default function WorkspacePage() {
                       onChange={(e) => setNewProject({ ...newProject, progress: Number.parseInt(e.target.value) || 0 })}
                     />
                   </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="github-repo">GitHub Repository</Label>
+                    <Input
+                      id="github-repo"
+                      placeholder="Repository name (optional)"
+                      value={newProject.githubRepo}
+                      onChange={(e) => setNewProject({ ...newProject, githubRepo: e.target.value })}
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsNewProjectOpen(false)}>
@@ -352,57 +276,53 @@ export default function WorkspacePage() {
         </div>
 
         {/* Project Overview */}
-        <Card className="mb-8">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl">{currentProject.name}</CardTitle>
-                <CardDescription className="mt-2">{currentProject.description}</CardDescription>
+        {currentProject && (
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl">{currentProject.name}</CardTitle>
+                  <CardDescription className="mt-2">{currentProject.description}</CardDescription>
+                </div>
+                <Badge
+                  variant={
+                    currentProject.status === "On Track"
+                      ? "default"
+                      : currentProject.status === "Ahead"
+                        ? "secondary"
+                        : "destructive"
+                  }
+                  className="text-sm px-3 py-1"
+                >
+                  {currentProject.status}
+                </Badge>
               </div>
-              <Badge
-                variant={
-                  currentProject.status === "on-track"
-                    ? "default"
-                    : currentProject.status === "ahead"
-                      ? "secondary"
-                      : "destructive"
-                }
-                className="text-sm px-3 py-1"
-              >
-                {currentProject.status === "on-track"
-                  ? "On Track"
-                  : currentProject.status === "ahead"
-                    ? "Ahead of Schedule"
-                    : "At Risk"}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Progress</p>
-                <div className="flex items-center gap-2">
-                  <Progress value={currentProject.progress} className="flex-1" />
-                  <span className="text-sm font-medium">{currentProject.progress}%</span>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-4 gap-6">
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Progress</p>
+                  <div className="flex items-center gap-2">
+                    <Progress value={currentProject.progress} className="flex-1" />
+                    <span className="text-sm font-medium">{currentProject.progress}%</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Team</p>
+                  <p className="text-2xl font-bold">{currentProject.team_name}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Coordinator</p>
+                  <p className="text-lg font-medium">{currentProject.coordinator}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Created</p>
+                  <p className="text-lg font-medium">{new Date(currentProject.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Team Size</p>
-                <p className="text-2xl font-bold">{currentProject.team}</p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Tasks</p>
-                <p className="text-2xl font-bold">
-                  {currentProject.completedTasks}/{currentProject.tasks}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Deadline</p>
-                <p className="text-lg font-medium">{currentProject.deadline}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -430,50 +350,58 @@ export default function WorkspacePage() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
-                <Card
-                  key={project.id}
-                  className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-                  onClick={() => handleProjectClick(project.id)}
-                >
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{project.name}</CardTitle>
-                      <Badge
-                        variant={
-                          project.status === "on-track"
-                            ? "default"
-                            : project.status === "ahead"
-                              ? "secondary"
-                              : "destructive"
-                        }
-                      >
-                        {project.status === "on-track" ? "On Track" : project.status === "ahead" ? "Ahead" : "At Risk"}
-                      </Badge>
-                    </div>
-                    <CardDescription>{project.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>Progress</span>
-                        <span className="font-medium">{project.progress}%</span>
+              {projects.length > 0 ? (
+                projects.map((project) => (
+                  <Card
+                    key={project.id}
+                    className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                    onClick={() => handleProjectClick(project.id)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">{project.name}</CardTitle>
+                        <Badge variant="default">{project.status}</Badge>
                       </div>
-                      <Progress value={project.progress} />
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {project.team} members
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {project.deadline}
-                        </span>
+                      <CardDescription>{project.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Progress</span>
+                          <span className="font-medium">{project.progress}%</span>
+                        </div>
+                        <Progress value={project.progress} />
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            {project.team_name}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(project.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card className="col-span-full">
+                  <CardContent className="p-8 text-center">
+                    <p className="text-muted-foreground mb-4">
+                      No projects yet. Create your first project to get started!
+                    </p>
+                    <Dialog open={isNewProjectOpen} onOpenChange={setIsNewProjectOpen}>
+                      <DialogTrigger asChild>
+                        <Button>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create First Project
+                        </Button>
+                      </DialogTrigger>
+                    </Dialog>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
           </TabsContent>
 
@@ -487,59 +415,7 @@ export default function WorkspacePage() {
               </Button>
             </div>
 
-            <div className="space-y-4">
-              {tasks.map((task) => (
-                <Card key={task.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        <div className="mt-1">
-                          {task.status === "completed" ? (
-                            <CheckCircle className="h-5 w-5 text-green-600" />
-                          ) : task.status === "in-progress" ? (
-                            <AlertCircle className="h-5 w-5 text-yellow-600" />
-                          ) : (
-                            <Circle className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-medium mb-1">{task.title}</h3>
-                          <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span className="flex items-center gap-1">
-                              <Avatar className="h-5 w-5">
-                                <AvatarFallback className="text-xs">
-                                  {task.assignee
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")}
-                                </AvatarFallback>
-                              </Avatar>
-                              {task.assignee}
-                            </span>
-                            <Badge
-                              variant={
-                                task.priority === "high"
-                                  ? "destructive"
-                                  : task.priority === "medium"
-                                    ? "default"
-                                    : "secondary"
-                              }
-                            >
-                              {task.priority}
-                            </Badge>
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <Calendar className="h-3 w-3" />
-                              {task.dueDate}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <div className="space-y-4">{/* Task list will be populated here */}</div>
           </TabsContent>
 
           {/* Files Tab */}
@@ -558,36 +434,7 @@ export default function WorkspacePage() {
               </div>
             </div>
 
-            <div className="grid gap-4">
-              {files.map((file) => (
-                <Card key={file.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                          {file.type === "folder" ? (
-                            <Folder className="h-5 w-5 text-primary" />
-                          ) : (
-                            <FileText className="h-5 w-5 text-primary" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="font-medium">{file.name}</h3>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>{file.size}</span>
-                            <span>Modified {file.modified}</span>
-                            <span>by {file.author}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <div className="grid gap-4">{/* File list will be populated here */}</div>
           </TabsContent>
 
           {/* Team Tab */}
@@ -601,50 +448,7 @@ export default function WorkspacePage() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { name: "Sarah Chen", role: "Project Manager", avatar: "/professional-woman.png", status: "online" },
-                { name: "Mike Johnson", role: "Lead Developer", avatar: "/professional-man.png", status: "online" },
-                { name: "Emily Davis", role: "UI/UX Designer", avatar: "/woman-developer.png", status: "away" },
-                { name: "Alex Rodriguez", role: "QA Engineer", avatar: "/diverse-user-avatars.png", status: "offline" },
-                { name: "Lisa Wang", role: "Backend Developer", avatar: "/professional-woman.png", status: "online" },
-              ].map((member, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6 text-center">
-                    <div className="relative inline-block mb-4">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={member.avatar || "/placeholder.svg"} />
-                        <AvatarFallback>
-                          {member.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div
-                        className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${
-                          member.status === "online"
-                            ? "bg-green-500"
-                            : member.status === "away"
-                              ? "bg-yellow-500"
-                              : "bg-gray-400"
-                        }`}
-                      />
-                    </div>
-                    <h3 className="font-medium mb-1">{member.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{member.role}</p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                        <MessageSquare className="h-3 w-3 mr-1" />
-                        Message
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                        <Video className="h-3 w-3 mr-1" />
-                        Call
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {/* Team members list will be populated here */}
             </div>
           </TabsContent>
         </Tabs>
