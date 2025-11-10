@@ -41,6 +41,7 @@ import {
   Settings,
   Bell,
 } from "lucide-react"
+import { GitHubIntegration } from "@/components/github-integration"
 
 export default function WorkspacePage() {
   const [activeTab, setActiveTab] = useState("projects")
@@ -222,16 +223,16 @@ export default function WorkspacePage() {
                 Workspace
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/messaging">
+                <Link href="/ledger">
                   <MessageSquare className="h-4 w-4 mr-2" />
-                  Messages
+                  Ledger
                 </Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/meetings">
-                  <Video className="h-4 w-4 mr-2" />
-                  Meetings
-                </Link>
+                <a href="https://google-calender-eta.vercel.app/">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Calendar
+                </a>
               </Button>
             </div>
           </div>
@@ -261,6 +262,8 @@ export default function WorkspacePage() {
             <p className="text-muted-foreground">Manage all your project activities from one unified interface</p>
           </div>
           <div className="flex items-center gap-4">
+            <GitHubIntegration />
+
             <Select value={selectedProject} onValueChange={setSelectedProject}>
               <SelectTrigger className="w-64">
                 <SelectValue />

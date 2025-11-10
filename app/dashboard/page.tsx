@@ -103,15 +103,9 @@ export default function DashboardPage() {
                 </Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/messaging">
+                <Link href="/ledger">
                   <MessageSquare className="h-4 w-4 mr-2" />
-                  Messages
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/meetings">
-                  <Video className="h-4 w-4 mr-2" />
-                  Meetings
+                  Ledger
                 </Link>
               </Button>
             </div>
@@ -275,12 +269,12 @@ export default function DashboardPage() {
                   <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
                     <MessageSquare className="h-6 w-6 text-secondary" />
                   </div>
-                  <CardTitle>Real-time Messaging</CardTitle>
-                  <CardDescription>Communicate instantly with your team members</CardDescription>
+                  <CardTitle>Ledger & Notes</CardTitle>
+                  <CardDescription>Create and manage your notes with highlighting capabilities</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild className="w-full" variant="secondary">
-                    <Link href="/messaging">Open Messages</Link>
+                    <Link href="/ledger">Open Ledger</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -288,22 +282,7 @@ export default function DashboardPage() {
               <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
                   <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                    <Video className="h-6 w-6 text-accent" />
-                  </div>
-                  <CardTitle>Video Meetings</CardTitle>
-                  <CardDescription>Host and join video conferences seamlessly</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button asChild className="w-full bg-transparent" variant="outline">
-                    <Link href="/meetings">Join Meeting</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <Lightbulb className="h-6 w-6 text-primary" />
+                    <Lightbulb className="h-6 w-6 text-accent" />
                   </div>
                   <CardTitle>Ideas Platform</CardTitle>
                   <CardDescription>Submit and collaborate on innovative ideas</CardDescription>

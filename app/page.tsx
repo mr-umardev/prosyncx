@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { ArrowRight, Users, MessageSquare, Video, Lightbulb, GraduationCap, BarChart3, Zap } from "lucide-react"
+import { ArrowRight, Users, MessageSquare, Lightbulb, GraduationCap, BarChart3, Zap } from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -11,9 +11,11 @@ export default function HomePage() {
       <nav className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">P</span>
-            </div>
+            <img
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/p4-bT2sr2wnKaDY8obDFogFyn3pjXJduL.png"
+              alt="ProSyncX Logo"
+              className="w-10 h-10 object-contain"
+            />
             <span className="text-2xl font-bold text-foreground">ProSyncX</span>
           </div>
           <div className="hidden md:flex items-center space-x-6">
@@ -23,12 +25,15 @@ export default function HomePage() {
             <Link href="/workspace" className="text-muted-foreground hover:text-foreground transition-colors">
               Workspace
             </Link>
-            <Link href="/messaging" className="text-muted-foreground hover:text-foreground transition-colors">
-              Messaging
+            <Link href="/ledger" className="text-muted-foreground hover:text-foreground transition-colors">
+              Ledger
             </Link>
-            <Link href="/meetings" className="text-muted-foreground hover:text-foreground transition-colors">
-              Meetings
-            </Link>
+            <a
+              href="https://google-calender-eta.vercel.app/"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Calendar
+            </a>
             <Button asChild>
               <Link href="/dashboard">Get Started</Link>
             </Button>
@@ -112,15 +117,15 @@ export default function HomePage() {
               <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
                 <MessageSquare className="h-6 w-6 text-secondary" />
               </div>
-              <CardTitle>Real-time Messaging</CardTitle>
+              <CardTitle>Ledger & Notes</CardTitle>
               <CardDescription>
-                Instant communication and collaboration tools that keep your team connected and productive.
+                Create, store, and manage your notes with highlighting capabilities for better organization.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="ghost" asChild className="w-full">
-                <Link href="/messaging">
-                  Start Messaging <ArrowRight className="ml-2 h-4 w-4" />
+                <Link href="/ledger">
+                  Open Ledger <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </CardContent>
@@ -129,26 +134,7 @@ export default function HomePage() {
           <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <CardHeader>
               <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <Video className="h-6 w-6 text-accent" />
-              </div>
-              <CardTitle>Video Meetings</CardTitle>
-              <CardDescription>
-                Seamless video conferencing and screen sharing for enhanced team collaboration.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="ghost" asChild className="w-full">
-                <Link href="/meetings">
-                  Join Meeting <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <Lightbulb className="h-6 w-6 text-primary" />
+                <Lightbulb className="h-6 w-6 text-accent" />
               </div>
               <CardTitle>Ideas Platform</CardTitle>
               <CardDescription>
@@ -166,8 +152,8 @@ export default function HomePage() {
 
           <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <CardHeader>
-              <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                <GraduationCap className="h-6 w-6 text-secondary" />
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <GraduationCap className="h-6 w-6 text-primary" />
               </div>
               <CardTitle>Academic Integration</CardTitle>
               <CardDescription>
@@ -279,9 +265,11 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">P</span>
-                </div>
+                <img
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/p4-bT2sr2wnKaDY8obDFogFyn3pjXJduL.png"
+                  alt="ProSyncX Logo"
+                  className="w-8 h-8 object-contain"
+                />
                 <span className="text-xl font-bold">ProSyncX</span>
               </div>
               <p className="text-muted-foreground text-pretty">
@@ -297,13 +285,8 @@ export default function HomePage() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/messaging" className="hover:text-foreground transition-colors">
-                    Messaging
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/meetings" className="hover:text-foreground transition-colors">
-                    Meetings
+                  <Link href="/ledger" className="hover:text-foreground transition-colors">
+                    Ledger
                   </Link>
                 </li>
                 <li>
