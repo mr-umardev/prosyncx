@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,12 +10,10 @@ import Link from "next/link"
 import {
   Users,
   MessageSquare,
-  Video,
+  GitBranch,
   Lightbulb,
   GraduationCap,
   BarChart3,
-  Calendar,
-  Clock,
   TrendingUp,
   Plus,
   Bell,
@@ -25,59 +23,45 @@ import {
 } from "lucide-react"
 
 export default function DashboardPage() {
-  const [activeProjects] = useState([
-    {
-      id: 1,
-      name: "Mobile App Redesign",
-      progress: 75,
-      team: 5,
-      deadline: "Dec 15, 2024",
-      status: "on-track",
-    },
-    {
-      id: 2,
-      name: "Website Migration",
-      progress: 45,
-      team: 3,
-      deadline: "Jan 10, 2025",
-      status: "at-risk",
-    },
-    {
-      id: 3,
-      name: "AI Integration",
-      progress: 90,
-      team: 7,
-      deadline: "Nov 30, 2024",
-      status: "ahead",
-    },
-  ])
+  const [activeProjects, setActiveProjects] = useState([])
+  const [projectsCount, setProjectsCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [commitHistory, setCommitHistory] = useState([])
 
-  const [recentActivity] = useState([
-    {
-      id: 1,
-      user: "Sarah Chen",
-      action: "completed task",
-      target: "User Authentication",
-      time: "2 hours ago",
-      avatar: "/professional-woman.png",
-    },
-    {
-      id: 2,
-      user: "Mike Johnson",
-      action: "started meeting",
-      target: "Sprint Planning",
-      time: "4 hours ago",
-      avatar: "/professional-man.png",
-    },
-    {
-      id: 3,
-      user: "Emily Davis",
-      action: "submitted idea",
-      target: "Performance Optimization",
-      time: "6 hours ago",
-      avatar: "/woman-developer.png",
-    },
-  ])
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch("/api/projects")
+        const data = await response.json()
+        setActiveProjects(data || [])
+        setProjectsCount(data?.length || 0)
+      } catch (error) {
+        console.error("Failed to fetch projects:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const fetchCommitHistory = async () => {
+      try {
+        const response = await fetch("/api/github?action=commits")
+        const data = await response.json()
+        setCommitHistory(data?.commits || [])
+      } catch (error) {
+        console.error("Failed to fetch commits:", error)
+      }
+    }
+
+    fetchProjects()
+    fetchCommitHistory()
+  }, [])
+
+  const teamMembers = [
+    { id: 1, name: "Sarah Chen", role: "Project Manager", avatar: "/professional-woman.png" },
+    { id: 2, name: "Mike Johnson", role: "Lead Developer", avatar: "/professional-man.png" },
+    { id: 3, name: "Emily Davis", role: "UI/UX Designer", avatar: "/woman-developer.png" },
+    { id: 4, name: "Alex Rodriguez", role: "QA Engineer", avatar: "/diverse-user-avatars.png" },
+  ]
 
   return (
     <div className="min-h-screen bg-background">
@@ -86,9 +70,7 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">P</span>
-              </div>
+              <img src="/p4.png" alt="ProSyncX" className="h-10 w-10" />
               <span className="text-xl font-bold">ProSyncX</span>
             </Link>
             <div className="hidden md:flex items-center space-x-1">
@@ -136,16 +118,16 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">12</div>
+              <div className="text-2xl font-bold">{projectsCount}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+2</span> from last month
+                <span className="text-green-600">+{projectsCount}</span> projects in workspace
               </p>
             </CardContent>
           </Card>
@@ -156,35 +138,22 @@ export default function DashboardPage() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">24</div>
+              <div className="text-2xl font-bold">{teamMembers.length}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+3</span> new this week
+                <span className="text-green-600">+{teamMembers.length}</span> active members
               </p>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-lg transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Messages Today</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Recent Commits</CardTitle>
+              <GitBranch className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">156</div>
+              <div className="text-2xl font-bold">{commitHistory.length}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-blue-600">+12%</span> from yesterday
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ideas Submitted</CardTitle>
-              <Lightbulb className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">8</div>
-              <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+4</span> this week
+                <span className="text-blue-600">+{commitHistory.length}</span> this week
               </p>
             </CardContent>
           </Card>
@@ -200,50 +169,54 @@ export default function DashboardPage() {
                   <CardTitle>Active Projects</CardTitle>
                   <CardDescription>Track progress across your current projects</CardDescription>
                 </div>
-                <Button size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Project
+                <Button asChild size="sm">
+                  <Link href="/workspace">
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Project
+                  </Link>
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {activeProjects.map((project) => (
-                  <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-medium">{project.name}</h4>
-                        <Badge
-                          variant={
-                            project.status === "on-track"
-                              ? "default"
+                {loading ? (
+                  <p className="text-muted-foreground">Loading projects...</p>
+                ) : activeProjects.length > 0 ? (
+                  activeProjects.map((project) => (
+                    <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="font-medium">{project.name}</h4>
+                          <Badge
+                            variant={
+                              project.status === "on-track"
+                                ? "default"
+                                : project.status === "ahead"
+                                  ? "secondary"
+                                  : "destructive"
+                            }
+                          >
+                            {project.status === "on-track"
+                              ? "On Track"
                               : project.status === "ahead"
-                                ? "secondary"
-                                : "destructive"
-                          }
-                        >
-                          {project.status === "on-track"
-                            ? "On Track"
-                            : project.status === "ahead"
-                              ? "Ahead"
-                              : "At Risk"}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                        <span className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {project.team} members
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          Due {project.deadline}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Progress value={project.progress} className="flex-1" />
-                        <span className="text-sm font-medium">{project.progress}%</span>
+                                ? "Ahead"
+                                : "At Risk"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            Team: {project.team_name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Progress value={project.progress} className="flex-1" />
+                          <span className="text-sm font-medium">{project.progress}%</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-muted-foreground">No projects yet. Create one in the Workspace!</p>
+                )}
               </CardContent>
             </Card>
 
@@ -298,52 +271,36 @@ export default function DashboardPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Recent Activity */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Recent Activity
+                  <GitBranch className="h-5 w-5" />
+                  Commit History
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={activity.avatar || "/placeholder.svg"} />
-                      <AvatarFallback>
-                        {activity.user
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm">
-                        <span className="font-medium">{activity.user}</span>{" "}
-                        <span className="text-muted-foreground">{activity.action}</span>{" "}
-                        <span className="font-medium">{activity.target}</span>
-                      </p>
-                      <p className="text-xs text-muted-foreground">{activity.time}</p>
+                {commitHistory.length > 0 ? (
+                  commitHistory.slice(0, 5).map((commit, index) => (
+                    <div key={index} className="flex items-start gap-3 border-b pb-3 last:border-b-0">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{commit.message}</p>
+                        <p className="text-xs text-muted-foreground">{commit.author}</p>
+                        <p className="text-xs text-muted-foreground">{commit.date}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No commits yet</p>
+                )}
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
             <Card>
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button asChild className="w-full justify-start">
-                  <Link href="/meetings">
-                    <Video className="h-4 w-4 mr-2" />
-                    Start Meeting
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-start bg-transparent">
                   <Link href="/ideas">
                     <Lightbulb className="h-4 w-4 mr-2" />
                     Submit Idea
@@ -358,7 +315,34 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Performance Metrics */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Team Members
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {teamMembers.map((member) => (
+                  <div key={member.id} className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={member.avatar || "/placeholder.svg"} />
+                      <AvatarFallback>
+                        {member.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">{member.name}</p>
+                      <p className="text-xs text-muted-foreground">{member.role}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
